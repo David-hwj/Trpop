@@ -1,0 +1,14 @@
+html,
+body,
+#app,
+.el-container {
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+}
+
+.el-header {
+    background-color: #409EFF;
+    color: rgb(255, 251, 251);
+    line-height: 60px;
+}

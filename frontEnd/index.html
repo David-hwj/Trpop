@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Personal Finance Manage</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <!--import vue vue-router elementui -->
+    <script src="javascript/vue.js"></script>
+    <script src="javascript/vue-router.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!--import axios qs -->
+    <script src="javascript/axios.min.js"></script>
+    <script src="javascript/qs.min.js"></script>
+    <!-- vue -->
+    <div id="app">
+        <router-view></router-view>
+    </div>
+    <!--1  after logged in -->
+    <template id="Choose">
+            <el-container style="border: 1px ">
+                <el-header style="text-align: right; font-size: 12px">
+                    <span style="  position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
+                    <span>USER</span>
+                </el-header>
+                <el-container>
+                    <el-aside width="200px">
+                        <el-menu :default-active="1">
+                            <el-menu-item index="1">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Spending Transaction </span>
+                            </el-menu-item>
+                            <el-menu-item index="2" @click="pagepush(2)">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Monthly Bills</span>
+                            </el-menu-item>
+                            <el-menu-item index="3" @click="pagepush(3)">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Budget Reset</span>
+                            </el-menu-item>
+                        </el-menu>
+                    </el-aside>
+                    <el-main>
+                        <el-select v-model="value" placeholder="请选择">
+                            <el-option v-for="item in options" :key="item.value" :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <el-table :data="spendingTableData" v-if="value!=''">
+                            <el-table-column prop="date" label="date" width="140">
+                            </el-table-column>
+                            <el-table-column prop="note" label="note" width="120">
+                            </el-table-column>
+                            <el-table-column prop="payment" label="payment">
+                            </el-table-column>
+                            <el-table-column label="category">
+                                <template slot-scope="scope">
+                                    <el-select v-model="scope.row.category" placeholder="please choose">
+                                        <el-option v-for="item in categories" :key="item.type" :label="item.type"
+                                            :value="item.type">
+                                        </el-option>
+                                    </el-select>
+                                </template>
+    </el-table-column>
+    </el-table>
+    <el-button type="primary" v-if="value!=''">update all</el-button>
+    </el-main>
+    </el-container>
+    </el-container>
+    </template>
+    <!--2 show the bill of the selected month-->
+    <template id="MonthBill">
+            <el-container style="border: 1px">
+                <el-header style="text-align: right; font-size: 12px">
+                    <span style="  position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
+                    <span>USER</span>
+                </el-header>
+                <el-container>
+                    <el-aside width="200px">
+                        <el-menu :default-active="2">
+                            <el-menu-item index="1" @click="pagepush(1)">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Spending Transaction </span>
+                            </el-menu-item>
+                            <el-menu-item index="2">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Monthly Bills</span>
+                            </el-menu-item>
+                            <el-menu-item index="3" @click="pagepush(3)">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Budget Reset</span>
+                            </el-menu-item>
+                        </el-menu>
+                    </el-aside>
+                    <el-main>
+                        <h1>Which month's bill do you want to check?</h1>
+                        <el-date-picker v-model="month" type="month" placeholder="please choose a month"
+                            @change="monthchange(month)">
+                        </el-date-picker>
+                        <el-collapse v-model="activeNames" @change="handleChange">
+                            <div v-for="(category, index) in categories" :key="index">
+                                <el-collapse-item :title="category.type " :name="index">
+                                    <span> budget: {{category.budget}} spend: {{category.budget}} </span>
+                                    <div>
+                                        <el-table :data="tableData">
+                                            <el-table-column prop="date" label="date" width="140">
+                                            </el-table-column>
+                                            <el-table-column prop="note" label="note" width="120">
+                                            </el-table-column>
+                                            <el-table-column prop="payment" label="payment">
+                                            </el-table-column>
+                                        </el-table>
+                                    </div>
+                                </el-collapse-item>
+                            </div>
+                        </el-collapse>
+                    </el-main>
+                </el-container>
+            </el-container>
+        </template>
+    <!--3 show the bill of the selected month-->
+    <template id="BudgetReset">
+            <el-container style="border: 1px">
+                <el-header style="text-align: right; font-size: 12px">
+                    <span style="  position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
+                    <span>USER</span>
+                </el-header>
+                <el-container>
+                    <el-aside width="200px">
+                        <el-menu :default-active="2">
+                            <el-menu-item index="1" @click="pagepush(1)">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Spending Transaction </span>
+                            </el-menu-item>
+                            <el-menu-item index="2" @click="pagepush(2)">
+                                <i class="el-icon-menu"></i>
+                                <span slot="title">Monthly Bills</span>
+                            </el-menu-item>
+                            <el-menu-item index="3">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Budget Reset</span>
+                            </el-menu-item>
+                        </el-menu>
+                    </el-aside>
+                    <el-main> to do </el-main>
+                </el-container>
+            </el-container>
+        </template>
+    <script type="text/javascript">
+        // 页面1 
+        var Choose = {
+                template: '#Choose',
+                data: function() {
+                    const item = {
+                        date: '2019-05-02',
+                        note: 'lunch',
+                        category: "Utilities",
+                        payment: 100.01
+                    };
+
+                    return {
+
+                        categories: [{
+                            "id": 1,
+                            "type": "Utilities",
+                            "budget": 10000,
+                        }, {
+                            "id": 2,
+                            "type": "Travel",
+                            "budget": 10000,
+
+                        }, {
+                            "id": 3,
+                            "type": "Groceries",
+                            "budget": 10000,
+
+                        }, {
+                            "id": 4,
+                            "type": "Rent",
+                            "budget": 10000,
+
+                        }],
+                        options: [{
+                            value: '1',
+                            label: 'AliPay'
+                        }, {
+                            value: '2',
+                            label: 'WePay'
+                        }, {
+                            value: '3',
+                            label: 'Credit Card'
+                        }, {
+                            value: '4',
+                            label: 'checking'
+                        }, {
+                            value: '5',
+                            label: 'current'
+                        }],
+                        value: '',
+                        spendingTableData: [{
+                            date: '2019-05-02',
+                            note: 'lunch',
+                            category: "Utilities",
+                            payment: 33.01
+                        }, {
+                            date: '2019-05-02',
+                            note: 'lunch',
+                            category: "Utilities",
+                            payment: 44.01
+                        }, {
+                            date: '2019-05-02',
+                            note: 'lunch',
+                            category: "Utilities",
+                            payment: 55.01
+                        }, {
+                            date: '2019-05-02',
+                            note: 'lunch',
+                            category: "Utilities",
+                            payment: 77.01
+                        }, {
+                            date: '2019-05-02',
+                            note: 'lunch',
+                            category: "Utilities",
+                            payment: 66.01
+                        }]
+                    }
+                },
+                methods: {
+                    pagepush(item) {
+                        console.log(item);
+                        if (item === 1) {
+                            pagename = "Choose"
+                        } else if (item === 2) {
+                            pagename = "MonthBill"
+
+                        } else {
+                            pagename = "BudgetReset"
+                        }
+                        console.log(pagename);
+
+                        this.$router.push({
+                            name: pagename,
+                        })
+                    }
+                }
+            }
+            // 页面2 
+        var MonthBill = {
+            template: '#MonthBill',
+            data: function() {
+                const item = {
+                    date: '2020-05-02',
+                    note: 'travel',
+                    payment: 5400.01
+                };
+
+                return {
+                    activeNames: '0',
+                    categories: [{
+                        "id": 1,
+                        "type": "Utilities",
+                        "budget": 10000,
+                    }, {
+                        "id": 2,
+                        "type": "Travel",
+                        "budget": 10000,
+
+                    }, {
+                        "id": 3,
+                        "type": "Groceries",
+                        "budget": 10000,
+
+                    }, {
+                        "id": 4,
+                        "type": "Rent",
+                        "budget": 10000,
+
+                    }],
+                    tableData: Array(5).fill(item),
+                    month: ''
+                }
+            },
+            methods: {
+                pagepush(item) {
+                    console.log(item);
+                    if (item === 1) {
+                        pagename = "Choose"
+                    } else if (item === 2) {
+                        pagename = "MonthBill"
+
+                    } else {
+                        pagename = "BudgetReset"
+                    }
+                    console.log(pagename);
+
+                    this.$router.push({
+                        name: pagename,
+                    })
+                },
+                monthchange(month) {
+                    console.log(month)
+                },
+                handleChange(val) {
+                    console.log(val)
+                },
+            }
+        }
+        var BudgetReset = {
+            template: '#BudgetReset',
+            data: function() {
+                return {}
+            },
+            methods: {
+                pagepush(item) {
+                    console.log(item);
+                    if (item === 1) {
+                        pagename = "Choose"
+                    } else if (item === 2) {
+                        pagename = "MonthBill"
+
+                    } else {
+                        pagename = "BudgetReset"
+                    }
+                    console.log(pagename);
+
+                    this.$router.push({
+                        name: pagename,
+                    })
+                }
+            }
+        }
+        Vue.use(VueRouter)
+        var routes = [{
+            path: '/',
+            redirect: 'Choose'
+        }, {
+            path: '/Choose',
+            name: 'Choose',
+            component: Choose
+        }, {
+            path: '/MonthBill',
+            name: 'MonthBill',
+            component: MonthBill
+        }, {
+            path: '/BudgetReset',
+            name: 'BudgetReset',
+            component: BudgetReset
+        }]
+        var router = new VueRouter({
+            routes: routes
+        })
+
+        new Vue({
+            el: "#app",
+            router: router,
+            data: {},
+            methods: {}
+        });
+    </script>
+</body>
+
+</html>
