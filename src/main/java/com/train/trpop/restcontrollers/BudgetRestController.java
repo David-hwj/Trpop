@@ -3,6 +3,6 @@ package com.train.trpop.restcontrollers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("spend")
+@RestController("/budget")
 public class BudgetRestController {
 }
