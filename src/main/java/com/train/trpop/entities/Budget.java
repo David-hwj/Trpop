@@ -7,41 +7,32 @@ import java.util.Date;
 
 @Document(collection = "budget")
 public class Budget {
-    String _id;
-    Date month;
-    String type;
-    double budget;
+    private String _id;
+    private String type;
+    private double budget;
+    private Date month;
 
     public Budget() {
     }
 
-    public Budget(Date month, String type, double budget) {
-        this.month = month;
-        this.type = type;
-        this.budget = budget;
-    }
-
-    public Budget(String _id, Date month, String type, double budget) {
+    public Budget(String type, double budget, Date month) {
         this._id = _id;
-        this.month = month;
         this.type = type;
         this.budget = budget;
+        this.month = month;
     }
 
-    public String get_id() {
-        return _id;
+    public Budget(String _id, String type, double budget, Date month) {
+        this._id = _id;
+        this.type = type;
+        this.budget = budget;
+        this.month = month;
     }
+
+    public String get_id() { return _id;}
 
     public void set_id(String _id) {
         this._id = _id;
-    }
-
-    public Date getMonth() {
-        return month;
-    }
-
-    public void setMonth(Date month) {
-        this.month = month;
     }
 
     public String getType() {
@@ -58,5 +49,15 @@ public class Budget {
 
     public void setBudget(double budget) {
         this.budget = budget;
+    }
+
+    public Date getDate() {
+        return month;
+    }
+
+    public void setType(Date month) { this.month = month; }
+
+    public String toString(){
+        return String.format("ObjectId:%s type:%s budget:%f Date:%tF",_id,type,budget,month);
     }
 }
