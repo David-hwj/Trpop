@@ -19,16 +19,11 @@ public class SpendServiceImpl implements SpendService{
     public List<Spend> getSpendByDate(Date from, Date to) {
         List<Spend> all=spendRepository.findAll();
         List<Spend> res=new ArrayList<Spend>();
-        System.out.println(all);
         for(Spend b : all){
-            System.out.println(b.getDate().after(from));
-            System.out.println(b.getDate().before(to));
             if(b.getDate().after(from) && b.getDate().before(to)){
-                System.out.println(b);
-                System.out.println(res.add(b));
+                res.add(b);
             }
         }
-        System.out.println(res);
         return res;
     }
 
