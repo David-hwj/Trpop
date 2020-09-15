@@ -25,7 +25,7 @@ public class BudgetRestController {
     @GetMapping("")
     public List<Budget> getBByDate(@RequestParam(name = "from", required = true) String from,
                                    @RequestParam(name = "to", required = false, defaultValue = "") String to) {
-        System.out.println(from+" "+to);
+//        System.out.println(from+" "+to);
         Date f = new Date();
         Date t = new Date();
         try {
@@ -35,7 +35,7 @@ public class BudgetRestController {
             e.printStackTrace();
             return  null;
         }
-        System.out.println(f.toString()+" "+t.toString());
+//        System.out.println(f.toString()+" "+t.toString());
         return budgetService.getBudgetByDate(f,t);
     }
 

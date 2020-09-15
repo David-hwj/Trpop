@@ -20,16 +20,11 @@ public class BudgetServiceImpl implements BudgetService{
     public List<Budget> getBudgetByDate(Date from, Date to) {
         List<Budget> all = budgetRepository.findAll();
         List<Budget> res = new ArrayList<Budget>();
-        System.out.println(all);
         for(Budget b: all) {
-            System.out.println(b.getDate().after(from));
-            System.out.println(b.getDate().before(to));
             if(b.getDate().after(from) && b.getDate().before(to)) {
-                System.out.println(b);
-                System.out.println(res.add(b));
+                res.add(b);
             }
         }
-        System.out.println(res);
         return res;
     }
 

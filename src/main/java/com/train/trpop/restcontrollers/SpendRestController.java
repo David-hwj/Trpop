@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,5 +65,16 @@ public class SpendRestController {
     public String deleteSpend(@RequestParam(name = "id", required = true) String id){
         spendService.deleteSpend(new Spend(id,null,0.0,null,null));
         return String.format("Del Succ: %s",id);
+    }
+    @GetMapping("/bill")
+    public List<Spend> getBill() throws ParseException {
+        Spend spend1=new Spend("",2.2,sdf.parse("2020-02-12"),"breakfast");
+        Spend spend2=new Spend("",100,sdf.parse("2020-02-13"),"cell phone");
+        Spend spend3=new Spend("",3,sdf.parse("2020-02-14"),"subway");
+        List<Spend> list=new ArrayList<>();
+        list.add(spend1);
+        list.add(spend2);
+        list.add(spend3);
+        return list;
     }
 }
