@@ -46,10 +46,18 @@
     url: "/spend",
     method: "post",
     requestbody: {
-      "type":"Travel",
-      "payment":0.0,
-      "date":"2020-09-14",
-      "note":"this is a note"
+      "spends":[
+        {
+          "type":"Travel",
+          "payment":0.0,
+          "date":"2020-09-14",
+          "note":"this is a note"},
+        {
+          "type":"Traffic",
+          "payment":3,
+          "date":"2020-09-14",
+          "note":"this is a note"}
+      ]
     },
   },
   {

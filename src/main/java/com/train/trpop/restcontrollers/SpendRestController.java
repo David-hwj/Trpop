@@ -4,6 +4,7 @@ package com.train.trpop.restcontrollers;
 import com.train.trpop.entities.Spend;
 import com.train.trpop.services.SpendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,7 @@ public class SpendRestController {
 
     @PostMapping("")
     public String postSpend(@RequestBody String json){
+//        System.out.println(json);
         JSONObject o= null;
         String type=null;
         double payment=0.0;
@@ -49,16 +51,21 @@ public class SpendRestController {
         String note=null;
         try {
             o = new JSONObject(json);
-            type=o.getString("type");
-            payment=o.getDouble("payment");
-            date=sdf.parse(o.getString("date"));
-            note=o.getString("note");
+            System.out.println(o);
+            JSONArray spends=o.getJSONArray("spends");
+            for(int i=0;i<spends.length();i++){
+                JSONObject jo=spends.getJSONObject(i);
+                type=jo.getString("type");
+                payment=jo.getDouble("payment");
+                date=sdf.parse(jo.getString("date"));
+                note=jo.getString("note");
+                Spend spend=new Spend(type,payment,date,note);
+                spendService.postSpend(spend);
+            }
         } catch (JSONException | ParseException e) {
             return String.format("Insert failed");
         }
-        Spend spend=new Spend(type,payment,date,note);
-        spendService.postSpend(spend);
-        return String.format("Insert Succ :%S",spend.toString());
+        return String.format("Insert Succ :%S",json);
     }
 
     @DeleteMapping("")
