@@ -22,7 +22,7 @@
         <router-view></router-view>
     </div>
     <!--1  after logged in -->
-    <template id="Choose">
+    <template id="Transaction">
             <el-container style="border: 1px ">
                 <el-header style="text-align: right; font-size: 12px">
                     <span style="  position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
@@ -46,7 +46,7 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <el-select v-model="value" placeholder="请选择">
+                        <el-select v-model="value" placeholder="please choose an account">
                             <el-option v-for="item in options" :key="item.value" :label="item.label"
                                 :value="item.value">
                             </el-option>
@@ -60,7 +60,7 @@
                             </el-table-column>
                             <el-table-column label="category">
                                 <template slot-scope="scope">
-                                    <el-select v-model="scope.row.category" placeholder="please choose">
+                                    <el-select v-model="scope.row.category" placeholder="please Transaction">
                                         <el-option v-for="item in categories" :key="item.type" :label="item.type"
                                             :value="item.type">
                                         </el-option>
@@ -99,7 +99,7 @@
                     </el-aside>
                     <el-main>
                         <h1>Which month's bill do you want to check?</h1>
-                        <el-date-picker v-model="month" type="month" placeholder="please choose a month"
+                        <el-date-picker v-model="month" type="month" placeholder="please Transaction a month"
                             @change="monthchange(month)">
                         </el-date-picker>
                         <el-collapse v-model="activeNames" @change="handleChange">
@@ -153,8 +153,8 @@
         </template>
     <script type="text/javascript">
         // 页面1 
-        var Choose = {
-                template: '#Choose',
+        var Transaction = {
+                template: '#Transaction',
                 data: function() {
                     const item = {
                         date: '2019-05-02',
@@ -234,7 +234,7 @@
                     pagepush(item) {
                         console.log(item);
                         if (item === 1) {
-                            pagename = "Choose"
+                            pagename = "Transaction"
                         } else if (item === 2) {
                             pagename = "MonthBill"
 
@@ -289,7 +289,7 @@
                 pagepush(item) {
                     console.log(item);
                     if (item === 1) {
-                        pagename = "Choose"
+                        pagename = "Transaction"
                     } else if (item === 2) {
                         pagename = "MonthBill"
 
@@ -319,7 +319,7 @@
                 pagepush(item) {
                     console.log(item);
                     if (item === 1) {
-                        pagename = "Choose"
+                        pagename = "Transaction"
                     } else if (item === 2) {
                         pagename = "MonthBill"
 
@@ -337,11 +337,11 @@
         Vue.use(VueRouter)
         var routes = [{
             path: '/',
-            redirect: 'Choose'
+            redirect: 'Transaction'
         }, {
-            path: '/Choose',
-            name: 'Choose',
-            component: Choose
+            path: '/Transaction',
+            name: 'Transaction',
+            component: Transaction
         }, {
             path: '/MonthBill',
             name: 'MonthBill',
