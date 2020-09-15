@@ -12,3 +12,11 @@ body,
     color: rgb(255, 251, 251);
     line-height: 60px;
 }
+
+.input-suffix {
+    left: 0px;
+    right: 0px;
+    width: 706px;
+    margin-left: auto;
+    margin-right: auto;
+}

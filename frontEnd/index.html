@@ -46,12 +46,13 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <el-select v-model="value" placeholder="please choose an account">
-                            <el-option v-for="item in options" :key="item.value" :label="item.label"
-                                :value="item.value">
+                        <el-select v-model="accountType" placeholder="please choose an account"
+                            @change="selectAccount(accountType)">
+                            <el-option v-for="item in options" :key="item.accountType" :label="item.label"
+                                :value="item.accountType">
                             </el-option>
                         </el-select>
-                        <el-table :data="spendingTableData" v-if="value!=''">
+                        <el-table :data="spendingTableData" v-if="accountType!=''">
                             <el-table-column prop="date" label="date" width="140">
                             </el-table-column>
                             <el-table-column prop="note" label="note" width="120">
@@ -68,7 +69,7 @@
                                 </template>
     </el-table-column>
     </el-table>
-    <el-button type="primary" v-if="value!=''">update all</el-button>
+    <el-button type="primary" v-if="accountType!=''" @click="updateSpend()">update all</el-button>
     </el-main>
     </el-container>
     </el-container>
@@ -100,7 +101,7 @@
                     <el-main>
                         <h1>Which month's bill do you want to check?</h1>
                         <el-date-picker v-model="month" type="month" placeholder="please Transaction a month"
-                            @change="monthchange(month)">
+                            value-format="yyyy-MM-dd" @change="monthchange(month)">
                         </el-date-picker>
                         <el-collapse v-model="activeNames" @change="handleChange">
                             <div v-for="(category, index) in categories" :key="index">
@@ -123,7 +124,7 @@
                 </el-container>
             </el-container>
         </template>
-    <!--3 show the bill of the selected month-->
+    <!--3 reset the budget-->
     <template id="BudgetReset">
             <el-container style="border: 1px">
                 <el-header style="text-align: right; font-size: 12px">
@@ -147,24 +148,43 @@
                             </el-menu-item>
                         </el-menu>
                     </el-aside>
-                    <el-main> to do </el-main>
+                    <el-main>
+                        <!-- <div class="input-suffix" v-for="(item, index) in budget" :key="index">
+                            {{item.type}}
+                            <el-input type="number" onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
+                                placeholder="please input the Budget" v-model="item.budget" clearable
+                                @change="inputchange(index)">
+                            </el-input>
+                        <el-button type="primary" @click = updatecategory(index)>update</el-button> -->
+                        <!-- </div> -->
+                        <el-form :model="budget" ref="budget" label-width="100px" class="demo-dynamic">
+                            <el-form-item v-for="(item, index) in budget" :label="'category ' + index" :key="index"
+                                :prop="'item.' + (index+1) + '.'"
+                                :rules="{required: true, message: '不能为空', trigger: 'blur'}">
+                                <el-input type="text" placeholder="please input the category" v-model="item.type"
+                                    clearable @change="inputchange(index)"></el-input>
+                                <el-input type="number"
+                                    onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
+                                    placeholder="please input the Budget" v-model="item.budget" clearable
+                                    @change="inputchange(index)">
+                                </el-input>
+                                <el-button @click.prevent="removeCategory(item)">delete</el-button>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="submitForm(budget)">submit</el-button>
+                                <el-button @click="addDomain">add</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-main>
                 </el-container>
             </el-container>
         </template>
     <script type="text/javascript">
-        // 页面1 
+        // 
         var Transaction = {
                 template: '#Transaction',
                 data: function() {
-                    const item = {
-                        date: '2019-05-02',
-                        note: 'lunch',
-                        category: "Utilities",
-                        payment: 100.01
-                    };
-
                     return {
-
                         categories: [{
                             "id": 1,
                             "type": "Utilities",
@@ -173,35 +193,32 @@
                             "id": 2,
                             "type": "Travel",
                             "budget": 10000,
-
                         }, {
                             "id": 3,
                             "type": "Groceries",
                             "budget": 10000,
-
                         }, {
                             "id": 4,
                             "type": "Rent",
                             "budget": 10000,
-
                         }],
                         options: [{
-                            value: '1',
+                            accountType: '1',
                             label: 'AliPay'
                         }, {
-                            value: '2',
+                            accountType: '2',
                             label: 'WePay'
                         }, {
-                            value: '3',
+                            accountType: '3',
                             label: 'Credit Card'
                         }, {
-                            value: '4',
+                            accountType: '4',
                             label: 'checking'
                         }, {
-                            value: '5',
+                            accountType: '5',
                             label: 'current'
                         }],
-                        value: '',
+                        accountType: '',
                         spendingTableData: [{
                             date: '2019-05-02',
                             note: 'lunch',
@@ -212,16 +229,6 @@
                             note: 'lunch',
                             category: "Utilities",
                             payment: 44.01
-                        }, {
-                            date: '2019-05-02',
-                            note: 'lunch',
-                            category: "Utilities",
-                            payment: 55.01
-                        }, {
-                            date: '2019-05-02',
-                            note: 'lunch',
-                            category: "Utilities",
-                            payment: 77.01
                         }, {
                             date: '2019-05-02',
                             note: 'lunch',
@@ -246,6 +253,29 @@
                         this.$router.push({
                             name: pagename,
                         })
+                    },
+                    selectAccount(accountType) {
+                        axios.get('/spend/bill')
+                            .then(function(response) {
+                                console.log(response.data)
+                                this.spendingTableData = response.data
+                                alert("success")
+                            })
+                            .catch(function(error) {
+                                console.log(error)
+                            })
+                    },
+                    updateSpend() {
+                        var that = this
+                        axios.post("/spend",
+                                that.spendingTableData
+                            )
+                            .then(function(response) {
+                                console.log(response);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
                     }
                 }
             }
@@ -274,14 +304,8 @@
                         "id": 3,
                         "type": "Groceries",
                         "budget": 10000,
-
-                    }, {
-                        "id": 4,
-                        "type": "Rent",
-                        "budget": 10000,
-
                     }],
-                    tableData: Array(5).fill(item),
+                    tableData: Array(3).fill(item),
                     month: ''
                 }
             },
@@ -304,6 +328,14 @@
                 },
                 monthchange(month) {
                     console.log(month)
+                    axios.get('/category')
+                        .then(function(response) {
+                            console.log(response.data)
+
+                        })
+                        .catch(function(error) {
+                            console.log(error)
+                        })
                 },
                 handleChange(val) {
                     console.log(val)
@@ -313,7 +345,28 @@
         var BudgetReset = {
             template: '#BudgetReset',
             data: function() {
-                return {}
+                return {
+                    budget: [{
+                        "id": 1,
+                        "type": "Utilities",
+                        "budget": 10000,
+                    }, {
+                        "id": 2,
+                        "type": "Travel",
+                        "budget": 10000,
+
+                    }, {
+                        "id": 3,
+                        "type": "Groceries",
+                        "budget": 10000,
+
+                    }, {
+                        "id": 4,
+                        "type": "Rent",
+                        "budget": 10000,
+
+                    }],
+                }
             },
             methods: {
                 pagepush(item) {
@@ -331,6 +384,36 @@
                     this.$router.push({
                         name: pagename,
                     })
+                },
+                inputchange(index) {
+                    console.log(index)
+                    console.log(this.budget)
+                },
+                // updatecategory(index) {
+                //     console.log("updatecategory " + index)
+                //     console.log(this.budget)
+                // },
+                submitForm(budget) {
+                    if (budget.length > 0) {
+                        alert('submit!');
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+
+                },
+                removeCategory(item) {
+                    var index = this.budget.indexOf(item)
+                    if (index !== -1) {
+                        this.budget.splice(index, 1)
+                    }
+                },
+                addDomain() {
+                    this.budget.push({
+                        "type": "",
+                        "budget": 0,
+                    });
+
                 }
             }
         }
