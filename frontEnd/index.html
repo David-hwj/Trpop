@@ -159,8 +159,8 @@
                         <!-- </div> -->
                         <el-form :model="budget" ref="budget" label-width="100px" class="demo-dynamic">
                             <el-form-item v-for="(item, index) in budget" :label="'category ' + index" :key="index"
-                                :prop="'item.' + (index+1) + '.'"
-                                :rules="{required: true, message: '不能为空', trigger: 'blur'}">
+                                :prop="budget.type"
+                                :rules="{required: true, message: 'cannot be empty', trigger: 'blur'}">
                                 <el-input type="text" placeholder="please input the category" v-model="item.type"
                                     clearable @change="inputchange(index)"></el-input>
                                 <el-input type="number"
@@ -266,15 +266,18 @@
                             })
                     },
                     updateSpend() {
-                        var that = this
+                        var params = new URLSearchParams();
+                        params.append('spends', Qs.stringify(this.spendingTableData));
+                        console.log(this.spendingTableData)
                         axios.post("/spend",
-                                that.spendingTableData
+                                params
                             )
                             .then(function(response) {
                                 console.log(response);
                             })
                             .catch(function(error) {
                                 console.log(error);
+                                console.log(params)
                             })
                     }
                 }
@@ -349,21 +352,21 @@
                     budget: [{
                         "id": 1,
                         "type": "Utilities",
-                        "budget": 10000,
+                        "budget": 1,
                     }, {
                         "id": 2,
                         "type": "Travel",
-                        "budget": 10000,
+                        "budget": 2,
 
                     }, {
                         "id": 3,
                         "type": "Groceries",
-                        "budget": 10000,
+                        "budget": 3,
 
                     }, {
                         "id": 4,
                         "type": "Rent",
-                        "budget": 10000,
+                        "budget": 4,
 
                     }],
                 }
