@@ -105,11 +105,11 @@
                             value-format="yyyy-MM-dd" @change="monthchange(month)">
                         </el-date-picker>
                         <el-collapse v-model="activeNames" @change="handleChange">
-                            <div v-for="(category, index) in categories" :key="index">
-                                <el-collapse-item :title="category.type " :name="index">
-                                    <span> budget: {{category.budget}} spend: {{category.budget}} </span>
+                            <div v-for="(item, index) in typetabledata" :key="index">
+                                <el-collapse-item :title="item.type" :name="index">
+                                    <span> budget: spend: </span>
                                     <div>
-                                        <el-table :data="tableData">
+                                        <el-table :data="item.bill">
                                             <el-table-column prop="date" label="date" width="140">
                                             </el-table-column>
                                             <el-table-column prop="note" label="note" width="120">
@@ -150,14 +150,6 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <!-- <div class="input-suffix" v-for="(item, index) in budget" :key="index">
-                            {{item.type}}
-                            <el-input type="number" onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
-                                placeholder="please input the Budget" v-model="item.budget" clearable
-                                @change="inputchange(index)">
-                            </el-input>
-                        <el-button type="primary" @click = updatecategory(index)>update</el-button> -->
-                        <!-- </div> -->
                         <el-form :model="budget" ref="budget" label-width="100px" class="demo-dynamic">
                             <el-form-item v-for="(item, index) in budget" :label="'category ' + index" :key="index"
                                 :prop="budget.type"
@@ -166,14 +158,13 @@
                                     clearable @change="inputchange(index)"></el-input>
                                 <el-input type="number"
                                     onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
-                                    placeholder="please input the Budget" v-model="item.budget" clearable
-                                    @change="inputchange(index)">
+                                    placeholder="please input the Budget" v-model="item.budget" clearable>
                                 </el-input>
                                 <el-button @click.prevent="removeCategory(item)">delete</el-button>
+                                <el-button type="primary" @click="updateBudget(item)">update</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" @click="submitForm(budget)">submit</el-button>
-                                <el-button @click="addDomain">add</el-button>
+                                <el-button @click="addDomain">add another category</el-button>
                             </el-form-item>
                         </el-form>
                     </el-main>
@@ -263,7 +254,7 @@
                                     .catch(function(error) {
                                         console.log(error)
                                     })
-                                alert("success")
+                                    // alert("success")
                                 that.showTable = true
                             })
                             .catch(function(error) {
@@ -271,18 +262,20 @@
                             })
                     },
                     updateSpend() {
-                        var params = new URLSearchParams();
-                        params.append('spends', Qs.stringify(this.spendingTableData));
+                        var requestbody = {
+                            spends: this.spendingTableData
+                        }
                         console.log(this.spendingTableData)
+                        console.log(requestbody)
                         axios.post("http://localhost:8080/spend",
-                                params
+                                requestbody
                             )
                             .then(function(response) {
                                 console.log(response);
                             })
                             .catch(function(error) {
                                 console.log(error);
-                                console.log(params)
+                                console.log(requestbody)
                             })
                     }
                 }
@@ -291,31 +284,26 @@
         var MonthBill = {
             template: '#MonthBill',
             data: function() {
-                const item = {
-                    date: '2020-05-02',
-                    note: 'travel',
-                    payment: 5400.01
-                };
-
                 return {
                     activeNames: '0',
-                    categories: [{
-                        accountType: '1',
-                        label: 'AliPay'
+                    categories: [],
+                    typetabledata: [],
+                    tableData: [{
+                        "note": "this is a note",
+                        date: '2020-05-02',
+                        type: 'Drinks',
+                        payment: 50
                     }, {
-                        accountType: '2',
-                        label: 'WePay'
+                        "note": "this is a note",
+                        date: '2020-05-02',
+                        type: 'Groceries',
+                        payment: 540.01
                     }, {
-                        accountType: '3',
-                        label: 'Credit Card'
-                    }, {
-                        accountType: '4',
-                        label: 'checking'
-                    }, {
-                        accountType: '5',
-                        label: 'current'
+                        "note": "this is a note",
+                        date: '2020-05-02',
+                        type: 'Groceries',
+                        payment: 50.01
                     }],
-                    tableData: Array(3).fill(item),
                     month: ''
                 }
             },
@@ -338,9 +326,49 @@
                 },
                 monthchange(month) {
                     console.log(month.toString())
+                    var that = this
+
+                    // console.log(that.tableData)
+                    // var item = []
+                    // for (let index = 0; index < that.tableData.length; index++) {
+                    //     item = that.tableData[index]
+                    //     var typeindex = that.categories.indexOf(that.tableData[index].type);
+                    //     console.log(typeindex)
+                    //     if (typeindex != -1) {
+                    //         that.typetabledata[typeindex].bill.push(item)
+                    //     } else {
+                    //         that.categories.push(that.tableData[index].type)
+                    //         that.typetabledata.push({
+                    //             "type": that.tableData[index].type,
+                    //             "bill": [item],
+                    //         })
+                    //         console.log(that.typetabledata)
+
+                    //     }
+                    // }
+
                     axios.get('http://localhost:8080/spend?from=' + month.toString())
                         .then(function(response) {
                             console.log(response.data)
+                            that.tableData = response.data
+                            console.log(that.tableData)
+                            var item = []
+                            for (let index = 0; index < that.tableData.length; index++) {
+                                item = that.tableData[index]
+                                var typeindex = that.categories.indexOf(that.tableData[index].type);
+                                console.log(typeindex)
+                                if (typeindex != -1) {
+                                    that.typetabledata[typeindex].bill.push(item)
+                                } else {
+                                    that.categories.push(that.tableData[index].type)
+                                    that.typetabledata.push({
+                                        "type": that.tableData[index].type,
+                                        "bill": [item],
+                                    })
+                                    console.log(that.categories)
+                                    console.log(that.typetabledata)
+                                }
+                            }
 
                         })
                         .catch(function(error) {
@@ -360,23 +388,45 @@
                         "id": 1,
                         "type": "Utilities",
                         "budget": 1,
+                        "month": "2020-01-02"
                     }, {
                         "id": 2,
                         "type": "Travel",
                         "budget": 2,
-
+                        "month": "2020-01-02"
                     }, {
                         "id": 3,
                         "type": "Groceries",
                         "budget": 3,
-
+                        "month": "2020-01-02"
                     }, {
                         "id": 4,
                         "type": "Rent",
                         "budget": 4,
-
+                        "month": "2020-01-02"
                     }],
                 }
+            },
+            created() {
+                var that = this
+                    //get budget
+                var nowMonth = new Date().getMonth()
+                var nowYear = new Date().getFullYear()
+                var fromdate = new Date(nowYear, nowMonth, 1)
+                var todate = new Date(nowYear, nowMonth + 1, 0)
+
+                console.log("console")
+                console.log(format('yyyy-MM-dd', fromdate))
+                console.log(format('yyyy-MM-dd', todate))
+                axios.get('http://localhost:8080/budget?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
+                    .then(function(response) {
+                        console.log("success")
+                        console.log(response.data)
+                    })
+                    .catch(function(error) {
+                        console.log("fail")
+                        console.log(error)
+                    })
             },
             methods: {
                 pagepush(item) {
@@ -395,24 +445,45 @@
                         name: pagename,
                     })
                 },
-                inputchange(index) {
-                    console.log(index)
-                    console.log(this.budget)
-                },
-                // updatecategory(index) {
-                //     console.log("updatecategory " + index)
-                //     console.log(this.budget)
-                // },
-                submitForm(budget) {
-                    if (budget.length > 0) {
-                        alert('submit!');
+                updateBudget(item) {
+                    console.log(item)
+                    if (item.budget && item.type.length) {
+                        axios.delete("http://localhost:8080/budget", item.id)
+                            .then(function(response) {
+                                console.log(response);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                        var requestbody = {
+                            "Month": item.month,
+                            "type": item.type,
+                            "budget": item.budget
+                        }
+                        console.log(requestbody)
+                        axios.post("http://localhost:8080/budget", requestbody)
+                            .then(function(response) {
+                                console.log(response);
+                                alert("success")
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
                     } else {
-                        console.log('error submit!!');
-                        return false;
+                        alert("error")
                     }
-
                 },
                 removeCategory(item) {
+                    console.log(item)
+                    if (item.id.length) {
+                        axios.delete("http://localhost:8080/budget", item.id)
+                            .then(function(response) {
+                                console.log(response);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                    }
                     var index = this.budget.indexOf(item)
                     if (index !== -1) {
                         this.budget.splice(index, 1)
@@ -422,8 +493,9 @@
                     this.budget.push({
                         "type": "",
                         "budget": 0,
+                        "month": format('yyyy-MM-dd', new Date())
                     });
-
+                    console.log(this.budget)
                 }
             }
         }
@@ -454,6 +526,24 @@
             data: {},
             methods: {}
         });
+
+        function format(fmt, date) {
+            var o = {
+                "M+": date.getMonth() + 1, //月份   
+                "d+": date.getDate(), //日   
+                "h+": date.getHours(), //小时   
+                "m+": date.getMinutes(), //分   
+                "s+": date.getSeconds(), //秒   
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度   
+                "S": date.getMilliseconds() //毫秒   
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
     </script>
 </body>
 
