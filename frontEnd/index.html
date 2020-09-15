@@ -52,7 +52,7 @@
                                 :value="item.accountType">
                             </el-option>
                         </el-select>
-                        <el-table :data="spendingTableData" v-if="accountType!=''">
+                        <el-table :data="spendingTableData" v-if="showTable">
                             <el-table-column prop="date" label="date" width="140">
                             </el-table-column>
                             <el-table-column prop="note" label="note" width="120">
@@ -70,6 +70,7 @@
     </el-table-column>
     </el-table>
     <el-button type="primary" v-if="accountType!=''" @click="updateSpend()">update all</el-button>
+    <!-- !!!!to check -->
     </el-main>
     </el-container>
     </el-container>
@@ -185,22 +186,16 @@
                 template: '#Transaction',
                 data: function() {
                     return {
+                        accountType: '',
+                        showTable: false,
                         categories: [{
-                            "id": 1,
                             "type": "Utilities",
-                            "budget": 10000,
                         }, {
-                            "id": 2,
                             "type": "Travel",
-                            "budget": 10000,
                         }, {
-                            "id": 3,
                             "type": "Groceries",
-                            "budget": 10000,
                         }, {
-                            "id": 4,
                             "type": "Rent",
-                            "budget": 10000,
                         }],
                         options: [{
                             accountType: '1',
@@ -218,7 +213,6 @@
                             accountType: '5',
                             label: 'current'
                         }],
-                        accountType: '',
                         spendingTableData: [{
                             date: '2019-05-02',
                             note: 'lunch',
@@ -244,22 +238,33 @@
                             pagename = "Transaction"
                         } else if (item === 2) {
                             pagename = "MonthBill"
-
                         } else {
                             pagename = "BudgetReset"
                         }
                         console.log(pagename);
-
                         this.$router.push({
                             name: pagename,
                         })
                     },
                     selectAccount(accountType) {
-                        axios.get('/spend/bill')
+                        var that = this
+                        axios.get('http://localhost:8080/spend/bill')
                             .then(function(response) {
                                 console.log(response.data)
-                                this.spendingTableData = response.data
+                                that.spendingTableData = response.data
+                                console.log(that.spendingTableData)
+                                axios.get('http://localhost:8080/category')
+                                    .then(function(response) {
+                                        if (response.data.length != 0) {
+                                            that.categories = response.data
+                                        }
+                                        console.log(response)
+                                    })
+                                    .catch(function(error) {
+                                        console.log(error)
+                                    })
                                 alert("success")
+                                that.showTable = true
                             })
                             .catch(function(error) {
                                 console.log(error)
@@ -269,7 +274,7 @@
                         var params = new URLSearchParams();
                         params.append('spends', Qs.stringify(this.spendingTableData));
                         console.log(this.spendingTableData)
-                        axios.post("/spend",
+                        axios.post("http://localhost:8080/spend",
                                 params
                             )
                             .then(function(response) {
@@ -295,18 +300,20 @@
                 return {
                     activeNames: '0',
                     categories: [{
-                        "id": 1,
-                        "type": "Utilities",
-                        "budget": 10000,
+                        accountType: '1',
+                        label: 'AliPay'
                     }, {
-                        "id": 2,
-                        "type": "Travel",
-                        "budget": 10000,
-
+                        accountType: '2',
+                        label: 'WePay'
                     }, {
-                        "id": 3,
-                        "type": "Groceries",
-                        "budget": 10000,
+                        accountType: '3',
+                        label: 'Credit Card'
+                    }, {
+                        accountType: '4',
+                        label: 'checking'
+                    }, {
+                        accountType: '5',
+                        label: 'current'
                     }],
                     tableData: Array(3).fill(item),
                     month: ''
@@ -330,8 +337,8 @@
                     })
                 },
                 monthchange(month) {
-                    console.log(month)
-                    axios.get('/category')
+                    console.log(month.toString())
+                    axios.get('http://localhost:8080/spend?from=' + month.toString())
                         .then(function(response) {
                             console.log(response.data)
 
