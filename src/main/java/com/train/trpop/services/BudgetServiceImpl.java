@@ -6,6 +6,8 @@ import com.train.trpop.repository.BudgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -15,8 +17,20 @@ public class BudgetServiceImpl implements BudgetService{
     BudgetRepository budgetRepository;
 
     @Override
-    public List<Budget> getAllBudget() {
-        return budgetRepository.findAll();
+    public List<Budget> getBudgetByDate(Date from, Date to) {
+        List<Budget> all = budgetRepository.findAll();
+        List<Budget> res = new ArrayList<Budget>();
+        System.out.println(all);
+        for(Budget b: all) {
+            System.out.println(b.getDate().after(from));
+            System.out.println(b.getDate().before(to));
+            if(b.getDate().after(from) && b.getDate().before(to)) {
+                System.out.println(b);
+                System.out.println(res.add(b));
+            }
+        }
+        System.out.println(res);
+        return res;
     }
 
     @Override

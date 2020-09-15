@@ -55,7 +55,7 @@ public class Budget {
         return month;
     }
 
-    public void setType(Date month) { this.month = month; }
+    public void setDate(Date month) { this.month = month; }
 
     public String toString(){
         return String.format("ObjectId:%s type:%s budget:%f Date:%tF",_id,type,budget,month);
