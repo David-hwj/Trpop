@@ -272,6 +272,7 @@
                             )
                             .then(function(response) {
                                 console.log(response);
+                                alert("success")
                             })
                             .catch(function(error) {
                                 console.log(error);
@@ -325,7 +326,15 @@
                     })
                 },
                 monthchange(month) {
-                    console.log(month.toString())
+                    var nowMonth = month.getMonth()
+                    var nowYear = month.getFullYear()
+                    var fromdate = new Date(nowYear, nowMonth, 1)
+                    var todate = new Date(nowYear, nowMonth + 1, 0)
+
+                    console.log("console")
+                    console.log(format('yyyy-MM-dd', fromdate))
+                    console.log(format('yyyy-MM-dd', todate))
+
                     var that = this
 
                     // console.log(that.tableData)
@@ -347,7 +356,7 @@
                     //     }
                     // }
 
-                    axios.get('http://localhost:8080/spend?from=' + month.toString())
+                    axios.get('http://localhost:8080/spend?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
                         .then(function(response) {
                             console.log(response.data)
                             that.tableData = response.data
@@ -415,7 +424,6 @@
                 var fromdate = new Date(nowYear, nowMonth, 1)
                 var todate = new Date(nowYear, nowMonth + 1, 0)
 
-                console.log("console")
                 console.log(format('yyyy-MM-dd', fromdate))
                 console.log(format('yyyy-MM-dd', todate))
                 axios.get('http://localhost:8080/budget?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
@@ -448,7 +456,7 @@
                 updateBudget(item) {
                     console.log(item)
                     if (item.budget && item.type.length) {
-                        axios.delete("http://localhost:8080/budget", item.id)
+                        axios.delete("http://localhost:8080/budget?id=" + item.id)
                             .then(function(response) {
                                 console.log(response);
                             })
@@ -476,7 +484,7 @@
                 removeCategory(item) {
                     console.log(item)
                     if (item.id.length) {
-                        axios.delete("http://localhost:8080/budget", item.id)
+                        axios.delete("http://localhost:8080/budget?id=" + item.id)
                             .then(function(response) {
                                 console.log(response);
                             })
