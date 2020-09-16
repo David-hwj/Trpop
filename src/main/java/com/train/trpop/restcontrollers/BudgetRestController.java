@@ -3,6 +3,7 @@ package com.train.trpop.restcontrollers;
 
 import com.train.trpop.entities.Budget;
 import com.train.trpop.entities.Category;
+import com.train.trpop.repository.BudgetRepository;
 import com.train.trpop.services.BudgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -21,7 +22,8 @@ public class BudgetRestController {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     @Autowired
     BudgetService budgetService;
-
+    @Autowired
+    BudgetRepository budgetRepository;
     @GetMapping("")
     public List<Budget> getBByDate(@RequestParam(name = "from", required = true) String from,
                                    @RequestParam(name = "to", required = false, defaultValue = "") String to) {
@@ -54,6 +56,11 @@ public class BudgetRestController {
             return String.format("Insert failed");
         }
 
+        List<Budget> list = budgetRepository.findAll();
+        for(Budget b:list) {
+            if(b.getType().equals(type) && b.getDate().getMonth()==(month.getMonth()))
+                return String.format("Budget already exist");
+        }
         Budget budget = new Budget(type,budgetAmount,month);
         budgetService.postOneBudget(budget);
         return String.format("Insert Succ :%S",budget.toString());

@@ -48,25 +48,13 @@ public class CategoryRestController {
     }
 
     @DeleteMapping("")
-    public String deleteCategory(@RequestBody String json){
-        JSONObject o= null;
-        String type=null;
-        try {
-            o = new JSONObject(json);
-            type=o.getString("type");
-        } catch (JSONException e) {
-            return String.format("Del failed");
-        }
-        Category category=null;
+    public String deleteCategory(@RequestParam(name = "type", required = true) String type){
         List<Category> list=categoryService.getAllCategory();
         for(Category c:list){
             if(c.getType().equals(type)){
-                category=c;
-                break;
+                categoryService.deleteOneCategory(c);
             }
         }
-        if(category==null) return String.format("Del failed");
-        categoryService.deleteOneCategory(category);
         return String.format("Category(type=%s) deleted",type);
     }
 }
