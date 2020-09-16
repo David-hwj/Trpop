@@ -150,9 +150,9 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <el-form :model="budget" ref="budget" label-width="100px" class="demo-dynamic">
-                            <el-form-item v-for="(item, index) in budget" :label="'category ' + index" :key="index"
-                                :prop="budget.type"
+                        <el-form :model="budgetNew" ref="budgetNew" label-width="100px">
+                            <el-form-item v-for="(item, index) in budgetNew" :label="'category ' + index" :key="index"
+                                :prop="budgetNew.type"
                                 :rules="{required: true, message: 'cannot be empty', trigger: 'blur'}">
                                 <el-input type="text" placeholder="please input the category" v-model="item.type"
                                     clearable></el-input>
@@ -394,7 +394,8 @@
             data: function() {
                 return {
                     categories: [],
-                    budget: []
+                    budgetNew: [],
+                    Predata: [],
                 }
             },
             created() {
@@ -409,9 +410,10 @@
                 console.log(format('yyyy-MM-dd', todate))
                 axios.get('http://localhost:8080/budget?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
                     .then(function(response) {
-                        console.log("success")
+                        console.log("budget success")
                         console.log(response.data)
-                        that.budget = response.data
+                        that.budgetNew = response.data
+                        that.Predata = response.data.map(t => t.type)
                     })
                     .catch(function(error) {
                         console.log("fail")
@@ -419,7 +421,7 @@
                     })
                 axios.get('http://localhost:8080/category')
                     .then(function(response) {
-                        console.log("success")
+                        console.log("category success")
                         console.log(response.data)
                         that.categories = response.data
                     })
@@ -448,6 +450,7 @@
                 updateBudget(item) {
                     var that = this
                     var requestbody
+                    var indexBudget = that.budgetNew.indexOf(item)
                     if (item.budget && item.type.length && item._id.length) {
                         axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
@@ -464,20 +467,47 @@
                     }
                     axios.post("http://localhost:8080/budget", requestbody)
                         .then(function(response) {
-                            var newitem = response.data
+                            var newbud = response.data
                             alert("success")
-                            var index = that.budget.indexOf(item)
-                            if (index !== -1) {
-                                that.budget[index] = newitem
+                            if (indexBudget !== -1) {
+                                that.budgetNew[indexBudget] = newbud
                             }
-                            console.log(that.budget)
                         })
                         .catch(function(error) {
                             console.log(error);
                         })
+                    console.log(this.budgetNew);
+                    console.log(this.Predata);
+
+                    if (item.type != that.Predata[indexBudget]) {
+                        axios.delete("http://localhost:8080/category?type=" + that.Predata[indexBudget])
+                            .then(function(response) {
+                                console.log(response);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                    }
+                    requestbody = {
+                        "type": item.type,
+                    }
+                    axios.post("http://localhost:8080/category", requestbody)
+                        .then(function(response) {
+                            console.log(response.data)
+                                // var newbud = response.data
+                                // alert("success")
+                                // if (indexBudget !== -1) {
+                                //     that.budgetNew[indexBudget] = newbud
+                                // }
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        })
+                    that.Predata[indexBudget] = item.type
+
                 },
                 removeBudget(item) {
-                    console.log(item._id)
+                    console.log(item._id.length)
                     if (item._id.length) {
                         axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
@@ -487,19 +517,29 @@
                                 console.log(error);
                             })
                     }
-                    var index = this.budget.indexOf(item)
+                    if (item.type.length) {
+                        axios.delete("http://localhost:8080/category?type=" + item.type)
+                            .then(function(response) {
+                                console.log(response);
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+
+                    }
+                    var index = this.budgetNew.indexOf(item)
                     if (index !== -1) {
-                        this.budget.splice(index, 1)
+                        this.budgetNew.splice(index, 1)
                     }
                 },
                 addDomain() {
-                    this.budget.push({
+                    this.budgetNew.push({
                         "type": "",
                         "budget": 0,
                         "date": format('yyyy-MM-dd', new Date()),
                         "_id": ''
                     });
-                    console.log(this.budget)
+                    console.log(this.budgetNew)
                 }
             }
         }
