@@ -289,22 +289,7 @@
                     activeNames: '0',
                     categories: [],
                     typetabledata: [],
-                    tableData: [{
-                        "note": "this is a note",
-                        date: '2020-05-02',
-                        type: 'Drinks',
-                        payment: 50
-                    }, {
-                        "note": "this is a note",
-                        date: '2020-05-02',
-                        type: 'Groceries',
-                        payment: 540.01
-                    }, {
-                        "note": "this is a note",
-                        date: '2020-05-02',
-                        type: 'Groceries',
-                        payment: 50.01
-                    }],
+                    tableData: [],
                     month: ''
                 }
             },
@@ -336,26 +321,6 @@
                     console.log(format('yyyy-MM-dd', todate))
 
                     var that = this
-
-                    // console.log(that.tableData)
-                    // var item = []
-                    // for (let index = 0; index < that.tableData.length; index++) {
-                    //     item = that.tableData[index]
-                    //     var typeindex = that.categories.indexOf(that.tableData[index].type);
-                    //     console.log(typeindex)
-                    //     if (typeindex != -1) {
-                    //         that.typetabledata[typeindex].bill.push(item)
-                    //     } else {
-                    //         that.categories.push(that.tableData[index].type)
-                    //         that.typetabledata.push({
-                    //             "type": that.tableData[index].type,
-                    //             "bill": [item],
-                    //         })
-                    //         console.log(that.typetabledata)
-
-                    //     }
-                    // }
-
                     axios.get('http://localhost:8080/spend?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
                         .then(function(response) {
                             console.log(response.data)
@@ -386,6 +351,7 @@
                 },
                 handleChange(val) {
                     console.log(val)
+                    this.typetabledata = []
                 },
             }
         }
