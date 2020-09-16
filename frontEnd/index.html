@@ -61,7 +61,7 @@
                             </el-table-column>
                             <el-table-column label="category">
                                 <template slot-scope="scope">
-                                    <el-select v-model="scope.row.category" placeholder="please Transaction">
+                                    <el-select v-model="scope.row.type" placeholder="please Transaction">
                                         <el-option v-for="item in categories" :key="item.type" :label="item.type"
                                             :value="item.type">
                                         </el-option>
@@ -102,7 +102,7 @@
                     <el-main>
                         <h1>Which month's bill do you want to check?</h1>
                         <el-date-picker v-model="month" type="month" placeholder="please Transaction a month"
-                            value-format="yyyy-MM-dd" @change="monthchange(month)">
+                            @change="monthchange(month)">
                         </el-date-picker>
                         <el-collapse v-model="activeNames" @change="handleChange">
                             <div v-for="(item, index) in typetabledata" :key="index">
@@ -155,12 +155,12 @@
                                 :prop="budget.type"
                                 :rules="{required: true, message: 'cannot be empty', trigger: 'blur'}">
                                 <el-input type="text" placeholder="please input the category" v-model="item.type"
-                                    clearable @change="inputchange(index)"></el-input>
+                                    clearable></el-input>
                                 <el-input type="number"
                                     onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
                                     placeholder="please input the Budget" v-model="item.budget" clearable>
                                 </el-input>
-                                <el-button @click.prevent="removeCategory(item)">delete</el-button>
+                                <el-button @click.prevent="removeBudget(item)">delete</el-button>
                                 <el-button type="primary" @click="updateBudget(item)">update</el-button>
                             </el-form-item>
                             <el-form-item>
@@ -393,27 +393,8 @@
             template: '#BudgetReset',
             data: function() {
                 return {
-                    budget: [{
-                        "id": 1,
-                        "type": "Utilities",
-                        "budget": 1,
-                        "month": "2020-01-02"
-                    }, {
-                        "id": 2,
-                        "type": "Travel",
-                        "budget": 2,
-                        "month": "2020-01-02"
-                    }, {
-                        "id": 3,
-                        "type": "Groceries",
-                        "budget": 3,
-                        "month": "2020-01-02"
-                    }, {
-                        "id": 4,
-                        "type": "Rent",
-                        "budget": 4,
-                        "month": "2020-01-02"
-                    }],
+                    categories: [],
+                    budget: []
                 }
             },
             created() {
@@ -430,6 +411,17 @@
                     .then(function(response) {
                         console.log("success")
                         console.log(response.data)
+                        that.budget = response.data
+                    })
+                    .catch(function(error) {
+                        console.log("fail")
+                        console.log(error)
+                    })
+                axios.get('http://localhost:8080/category')
+                    .then(function(response) {
+                        console.log("success")
+                        console.log(response.data)
+                        that.categories = response.data
                     })
                     .catch(function(error) {
                         console.log("fail")
@@ -454,37 +446,40 @@
                     })
                 },
                 updateBudget(item) {
-                    console.log(item)
-                    if (item.budget && item.type.length) {
-                        axios.delete("http://localhost:8080/budget?id=" + item.id)
+                    var that = this
+                    var requestbody
+                    if (item.budget && item.type.length && item._id.length) {
+                        axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
                                 console.log(response);
                             })
                             .catch(function(error) {
                                 console.log(error);
                             })
-                        var requestbody = {
-                            "Month": item.month,
-                            "type": item.type,
-                            "budget": item.budget
-                        }
-                        console.log(requestbody)
-                        axios.post("http://localhost:8080/budget", requestbody)
-                            .then(function(response) {
-                                console.log(response);
-                                alert("success")
-                            })
-                            .catch(function(error) {
-                                console.log(error);
-                            })
-                    } else {
-                        alert("error")
                     }
+                    requestbody = {
+                        "Month": new Date(),
+                        "type": item.type,
+                        "budget": item.budget
+                    }
+                    axios.post("http://localhost:8080/budget", requestbody)
+                        .then(function(response) {
+                            var newitem = response.data
+                            alert("success")
+                            var index = that.budget.indexOf(item)
+                            if (index !== -1) {
+                                that.budget[index] = newitem
+                            }
+                            console.log(that.budget)
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        })
                 },
-                removeCategory(item) {
-                    console.log(item)
-                    if (item.id.length) {
-                        axios.delete("http://localhost:8080/budget?id=" + item.id)
+                removeBudget(item) {
+                    console.log(item._id)
+                    if (item._id.length) {
+                        axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
                                 console.log(response);
                             })
@@ -501,7 +496,8 @@
                     this.budget.push({
                         "type": "",
                         "budget": 0,
-                        "month": format('yyyy-MM-dd', new Date())
+                        "date": format('yyyy-MM-dd', new Date()),
+                        "_id": ''
                     });
                     console.log(this.budget)
                 }
