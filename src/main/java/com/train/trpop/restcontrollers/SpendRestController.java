@@ -77,11 +77,11 @@ public class SpendRestController {
     public List<Spend> getBill(@RequestParam(name = "type", required = true) String type) throws ParseException {
 //        System.out.println(type);
         List<Spend> list=new ArrayList<>();
-        if(type.equals("alipay")){
+        if(type.equals("1")){
             list.add(new Spend("",2.2,sdf.parse("2020-09-12"),"alipay"));
             list.add(new Spend("",100.0,sdf.parse("2020-09-13"),"alipay"));
             list.add(new Spend("",3.0,sdf.parse("2020-09-14"),"alipay"));
-        }else if(type.equals("wechatpay")){
+        }else if(type.equals("2")){
             list.add(new Spend("",2.2,sdf.parse("2020-09-02"),"wechatpay"));
             list.add(new Spend("",300.0,sdf.parse("2020-09-03"),"wechatpay"));
             list.add(new Spend("",1500.0,sdf.parse("2020-09-11"),"wechatpay"));

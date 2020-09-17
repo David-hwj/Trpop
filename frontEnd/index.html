@@ -33,14 +33,14 @@
                 </el-header>
                 <el-container>
                     <el-aside width="18%">
-                        <el-menu :default-active="1">
-                            <el-menu-item index="1">
-                                <i class="el-icon-document"></i>
-                                <span slot="title">Spending Transaction </span>
-                            </el-menu-item>
+                        <el-menu :default-active="2">
                             <el-menu-item index="2" @click="pagepush(2)">
                                 <i class="el-icon-document"></i>
                                 <span slot="title">Monthly Bills</span>
+                            </el-menu-item>
+                            <el-menu-item index="1" @click="pagepush(1)">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Spending Transaction </span>
                             </el-menu-item>
                             <el-menu-item index="3" @click="pagepush(3)">
                                 <i class="el-icon-document"></i>
@@ -56,16 +56,15 @@
                             </el-option>
                         </el-select>
                         <el-table :data="spendingTableData" v-if="showTable">
-                            <el-table-column prop="date" label="Date" >
+                            <el-table-column prop="date" label="Date">
                             </el-table-column>
-                            <el-table-column prop="note" label="Note" >
+                            <el-table-column prop="note" label="Note">
                             </el-table-column>
                             <el-table-column prop="payment" label="Payment">
                             </el-table-column>
                             <el-table-column label="Category">
                                 <template slot-scope="scope">
-                                    <el-select v-model="scope.row.type"
-                                        placeholder="please Transaction">
+                                    <el-select v-model="scope.row.type" placeholder="please Transaction">
                                         <el-option v-for="item in categories" :key="item.type" :label="item.type"
                                             :value="item.type">
                                         </el-option>
@@ -89,13 +88,13 @@
                 <el-container>
                     <el-aside width="18%">
                         <el-menu :default-active="2">
+                            <el-menu-item index="2" @click="pagepush(2)">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Monthly Bills</span>
+                            </el-menu-item>
                             <el-menu-item index="1" @click="pagepush(1)">
                                 <i class="el-icon-document"></i>
                                 <span slot="title">Spending Transaction </span>
-                            </el-menu-item>
-                            <el-menu-item index="2">
-                                <i class="el-icon-document"></i>
-                                <span slot="title">Monthly Bills</span>
                             </el-menu-item>
                             <el-menu-item index="3" @click="pagepush(3)">
                                 <i class="el-icon-document"></i>
@@ -108,6 +107,8 @@
                         <el-date-picker v-model="month" type="month" placeholder="please Transaction a month"
                             @change="monthchange(month)">
                         </el-date-picker>
+                        <div id="billbarChart" style="width: 1000px;height:400px;"></div>
+
                         <el-collapse v-model="activeNames" @change="handleChange">
                             <div v-for="(item, index) in typetabledata" :key="index">
                                 <el-collapse-item :title="item.type" :name="index">
@@ -125,7 +126,6 @@
                                 </el-collapse-item>
                             </div>
                         </el-collapse>
-            <div id="myChart" style="width: 1000px;height:400px;"></div>
                     </el-main>
                 </el-container>
             </el-container>
@@ -140,15 +140,15 @@
                 <el-container>
                     <el-aside width="18%">
                         <el-menu :default-active="2">
-                            <el-menu-item index="1" @click="pagepush(1)">
-                                <i class="el-icon-document"></i>
-                                <span slot="title">Spending Transaction </span>
-                            </el-menu-item>
                             <el-menu-item index="2" @click="pagepush(2)">
                                 <i class="el-icon-document"></i>
                                 <span slot="title">Monthly Bills</span>
                             </el-menu-item>
-                            <el-menu-item index="3">
+                            <el-menu-item index="1" @click="pagepush(1)">
+                                <i class="el-icon-document"></i>
+                                <span slot="title">Spending Transaction </span>
+                            </el-menu-item>
+                            <el-menu-item index="3" @click="pagepush(3)">
                                 <i class="el-icon-document"></i>
                                 <span slot="title">Budget Reset</span>
                             </el-menu-item>
@@ -168,7 +168,8 @@
                                 <el-button type="success" icon="el-icon-check"  @click="updateBudget(item)">update</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <el-button icon="el-icon-circle-plus-outline" @click="addDomain">add another one</el-button>
+                                <el-button icon="el-icon-circle-plus-outline" @click="addDomain">add another one
+                                </el-button>
                             </el-form-item>
                         </el-form>
                     </el-main>
@@ -181,7 +182,7 @@
                 template: '#Transaction',
                 data: function() {
                     return {
-                        accountType: '',
+                        accountType: "1",
                         showTable: false,
                         categories: [{
                             "type": "Utilities",
@@ -203,13 +204,16 @@
                             label: 'Credit Card'
                         }, {
                             accountType: '4',
-                            label: 'checking'
+                            label: 'Checking'
                         }, {
                             accountType: '5',
-                            label: 'current'
+                            label: 'Current'
                         }],
                         spendingTableData: []
                     }
+                },
+                created() {
+                    this.selectAccount(this.accountType)
                 },
                 methods: {
                     pagepush(item) {
@@ -228,7 +232,7 @@
                     },
                     selectAccount(accountType) {
                         var that = this
-                        axios.get('http://localhost:8080/spend/bill')
+                        axios.get('http://localhost:8080/spend/bill?type=' + accountType)
                             .then(function(response) {
                                 console.log(response.data)
                                 that.spendingTableData = response.data
@@ -285,12 +289,27 @@
                     categories: [],
                     typetabledata: [],
                     tableData: [],
-                    month: ''
+                    month: new Date(),
+                    cdataCate: ["Utilities", "Travel", "Groceries", "Drinks", "Rent", "Cell Phone", "Car Payments", "Fun Money"],
+                    cdataSpend: [100, 200, 260, 300, 200, 120, 240, 300],
+                    cdataBudget: [200, 300, 360, 400, 300, 220, 340, 400]
+
                 }
+            },
+            created() {
+                console.log(this.month)
+                this.monthchange(this.month)
             },
             mounted() {
                 this.draw()
             },
+            watch: {
+                cdataCate(val) { //监听数据发生改变 刷新图表数据
+                    console.log("datachange")
+                    this.draw();
+                }
+            },
+
             methods: {
                 pagepush(item) {
                     console.log(item);
@@ -323,6 +342,7 @@
                             for (let index = 0; index < that.tableData.length; index++) {
                                 that.tableData[index].date = that.tableData[index].date.split("T")[0]
                             }
+                            console.log(that.tableData)
                             var item = []
                             var budgetData = []
                             var typeInBudget = []
@@ -343,6 +363,10 @@
                                         } else {
                                             //if type not in typetable data
                                             that.categories.push(that.tableData[index].type)
+                                            console.log(that.tableData[index].type)
+                                            console.log(typeInBudget)
+                                            console.log(item.type)
+                                            console.log(typeInBudget.indexOf(item.type))
                                             that.typetabledata.push({
                                                 "type": that.tableData[index].type,
                                                 "budget": budgetData[typeInBudget.indexOf(item.type)].budget,
@@ -351,6 +375,10 @@
                                             })
                                         }
                                     }
+                                    that.cdataCate = that.typetabledata.map(t => t.type)
+                                    that.cdataSpend = that.typetabledata.map(t => t.havespend)
+                                    that.cdataBudget = that.typetabledata.map(t => t.budget)
+                                    console.log(that.cdataCate)
                                 })
                                 .catch(function(error) {
                                     console.log(error)
@@ -364,8 +392,11 @@
                     console.log(val)
                 },
                 draw() {
-                    var myChart = echarts.init(document.getElementById("myChart"));
-                    myChart.setOption({
+                    var odataCate = this.cdataCate
+                    var odataSpend = this.cdataSpend
+                    var odataBudget = this.cdataBudget
+                    var billbarChart = echarts.init(document.getElementById("billbarChart"));
+                    billbarChart.setOption({
                         // title: {
                         //     text: '第一个 ECharts 实例'
                         // },
@@ -382,20 +413,20 @@
                             "axisLabel": {
                                 interval: 0
                             },
-                            data: ["Utilities", "Travel", "Groceries", "Drinks", "Rent", "Cell Phone", "Car Payments", "Fun Money"]
+                            data: odataCate
                         },
                         yAxis: {},
                         series: [{
                             name: 'Budget',
                             type: 'bar',
-                            data: [200, 300, 360, 400, 300, 220, 340, 400]
+                            data: odataBudget
                         }, {
                             name: 'Spend',
                             type: 'bar',
-                            data: [100, 200, 260, 300, 200, 120, 240, 300]
+                            data: odataSpend
                         }]
                     })
-                    window.onresize = myChart.resize; //让图表跟着窗口大小变化
+                    window.onresize = billbarChart.resize; //让图表跟着窗口大小变化
                 },
             }
         }
@@ -465,6 +496,7 @@
                         axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
                                 console.log(response);
+
                             })
                             .catch(function(error) {
                                 console.log(error);
@@ -478,7 +510,11 @@
                     axios.post("http://localhost:8080/budget", requestbody)
                         .then(function(response) {
                             var newbud = response.data
-                            alert("success")
+                            that.$notify({
+                                title: 'success',
+                                message: 'you have update this Budget successfully',
+                                type: 'success'
+                            });
                             if (indexBudget !== -1) {
                                 that.budgetNew[indexBudget] = newbud
                             }
@@ -504,11 +540,6 @@
                     axios.post("http://localhost:8080/category", requestbody)
                         .then(function(response) {
                             console.log(response.data)
-                                // var newbud = response.data
-                                // alert("success")
-                                // if (indexBudget !== -1) {
-                                //     that.budgetNew[indexBudget] = newbud
-                                // }
                         })
                         .catch(function(error) {
                             console.log(error);
@@ -556,7 +587,7 @@
         Vue.use(VueRouter)
         var routes = [{
             path: '/',
-            redirect: 'Transaction'
+            redirect: 'MonthBill'
         }, {
             path: '/Transaction',
             name: 'Transaction',
