@@ -74,14 +74,21 @@ public class SpendRestController {
         return String.format("Del Succ: %s",id);
     }
     @GetMapping("/bill")
-    public List<Spend> getBill() throws ParseException {
-        Spend spend1=new Spend("",2.2,sdf.parse("2020-02-12"),"breakfast");
-        Spend spend2=new Spend("",100,sdf.parse("2020-02-13"),"cell phone");
-        Spend spend3=new Spend("",3,sdf.parse("2020-02-14"),"subway");
+    public List<Spend> getBill(@RequestParam(name = "type", required = true) String type) throws ParseException {
+//        System.out.println(type);
         List<Spend> list=new ArrayList<>();
-        list.add(spend1);
-        list.add(spend2);
-        list.add(spend3);
+        if(type.equals("alipay")){
+            list.add(new Spend("",2.2,sdf.parse("2020-09-12"),"alipay"));
+            list.add(new Spend("",100.0,sdf.parse("2020-09-13"),"alipay"));
+            list.add(new Spend("",3.0,sdf.parse("2020-09-14"),"alipay"));
+        }else if(type.equals("wechatpay")){
+            list.add(new Spend("",2.2,sdf.parse("2020-09-02"),"wechatpay"));
+            list.add(new Spend("",300.0,sdf.parse("2020-09-03"),"wechatpay"));
+            list.add(new Spend("",1500.0,sdf.parse("2020-09-11"),"wechatpay"));
+            list.add(new Spend("",5.0,sdf.parse("2020-09-17"),"wechatpay"));
+        }else{
+            list.add(new Spend("",0.0,sdf.parse("2020-09-01"),type));
+        }
         return list;
     }
 }

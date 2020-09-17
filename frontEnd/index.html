@@ -17,6 +17,9 @@
     <!--import axios qs -->
     <script src="javascript/axios.min.js"></script>
     <script src="javascript/qs.min.js"></script>
+    <!-- import echart -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.2"></script>
     <!-- vue -->
     <div id="app">
         <router-view></router-view>
@@ -25,18 +28,18 @@
     <template id="Transaction">
             <el-container style="border: 1px ">
                 <el-header style="text-align: right; font-size: 12px">
-                    <span style="  position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
+                    <span style="position:absolute;left:10px; font-size: 18px;">Personal Finance Manage</span>
                     <span>USER</span>
                 </el-header>
                 <el-container>
-                    <el-aside width="200px">
+                    <el-aside width="18%">
                         <el-menu :default-active="1">
                             <el-menu-item index="1">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Spending Transaction </span>
                             </el-menu-item>
                             <el-menu-item index="2" @click="pagepush(2)">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Monthly Bills</span>
                             </el-menu-item>
                             <el-menu-item index="3" @click="pagepush(3)">
@@ -46,22 +49,23 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <el-select v-model="accountType" placeholder="please choose an account"
+                        <el-select v-model="accountType" placeholder="please choose an account" style="width: 300px;"
                             @change="selectAccount(accountType)">
                             <el-option v-for="item in options" :key="item.accountType" :label="item.label"
                                 :value="item.accountType">
                             </el-option>
                         </el-select>
                         <el-table :data="spendingTableData" v-if="showTable">
-                            <el-table-column prop="date" label="date" width="140">
+                            <el-table-column prop="date" label="Date" >
                             </el-table-column>
-                            <el-table-column prop="note" label="note" width="120">
+                            <el-table-column prop="note" label="Note" >
                             </el-table-column>
-                            <el-table-column prop="payment" label="payment">
+                            <el-table-column prop="payment" label="Payment">
                             </el-table-column>
-                            <el-table-column label="category">
+                            <el-table-column label="Category">
                                 <template slot-scope="scope">
-                                    <el-select v-model="scope.row.type" placeholder="please Transaction">
+                                    <el-select v-model="scope.row.type"
+                                        placeholder="please Transaction">
                                         <el-option v-for="item in categories" :key="item.type" :label="item.type"
                                             :value="item.type">
                                         </el-option>
@@ -69,7 +73,7 @@
                                 </template>
     </el-table-column>
     </el-table>
-    <el-button type="primary" v-if="accountType!=''" @click="updateSpend()">update all</el-button>
+    <el-button type="success" icon="el-icon-check" style="margin: 3px;" v-if="accountType!=''" @click="updateSpend()">update all</el-button>
     <!-- !!!!to check -->
     </el-main>
     </el-container>
@@ -83,14 +87,14 @@
                     <span>USER</span>
                 </el-header>
                 <el-container>
-                    <el-aside width="200px">
+                    <el-aside width="18%">
                         <el-menu :default-active="2">
                             <el-menu-item index="1" @click="pagepush(1)">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Spending Transaction </span>
                             </el-menu-item>
                             <el-menu-item index="2">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Monthly Bills</span>
                             </el-menu-item>
                             <el-menu-item index="3" @click="pagepush(3)">
@@ -107,12 +111,12 @@
                         <el-collapse v-model="activeNames" @change="handleChange">
                             <div v-for="(item, index) in typetabledata" :key="index">
                                 <el-collapse-item :title="item.type" :name="index">
-                                    <span> budget: spend: </span>
+                                    <span> your budget: ${{item.budget}}, you have spend: ${{item.havespend}} </span>
                                     <div>
                                         <el-table :data="item.bill">
-                                            <el-table-column prop="date" label="date" width="140">
+                                            <el-table-column prop="date" label="date">
                                             </el-table-column>
-                                            <el-table-column prop="note" label="note" width="120">
+                                            <el-table-column prop="note" label="note">
                                             </el-table-column>
                                             <el-table-column prop="payment" label="payment">
                                             </el-table-column>
@@ -121,6 +125,7 @@
                                 </el-collapse-item>
                             </div>
                         </el-collapse>
+            <div id="myChart" style="width: 1000px;height:400px;"></div>
                     </el-main>
                 </el-container>
             </el-container>
@@ -133,14 +138,14 @@
                     <span>USER</span>
                 </el-header>
                 <el-container>
-                    <el-aside width="200px">
+                    <el-aside width="18%">
                         <el-menu :default-active="2">
                             <el-menu-item index="1" @click="pagepush(1)">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Spending Transaction </span>
                             </el-menu-item>
                             <el-menu-item index="2" @click="pagepush(2)">
-                                <i class="el-icon-menu"></i>
+                                <i class="el-icon-document"></i>
                                 <span slot="title">Monthly Bills</span>
                             </el-menu-item>
                             <el-menu-item index="3">
@@ -150,21 +155,20 @@
                         </el-menu>
                     </el-aside>
                     <el-main>
-                        <el-form :model="budgetNew" ref="budgetNew" label-width="100px">
-                            <el-form-item v-for="(item, index) in budgetNew" :label="'category ' + index" :key="index"
-                                :prop="budgetNew.type"
-                                :rules="{required: true, message: 'cannot be empty', trigger: 'blur'}">
-                                <el-input type="text" placeholder="please input the category" v-model="item.type"
-                                    clearable></el-input>
-                                <el-input type="number"
+                        <el-form :model="budgetNew" label-width="100px">
+                            <el-form-item v-for="(item, index) in budgetNew" :label="'Budget ' + index" :key="index"
+                                :prop="budgetNew.type">
+                                <el-input prefix-icon="el-icon-edit" type="text" placeholder="please input the category" v-model="item.type"
+                                    style="width: 22%;" clearable></el-input>
+                                <el-input prefix-icon="el-icon-coin" type="number" style="width: 22%;"
                                     onkeyup="value=value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1')"
                                     placeholder="please input the Budget" v-model="item.budget" clearable>
                                 </el-input>
-                                <el-button @click.prevent="removeBudget(item)">delete</el-button>
-                                <el-button type="primary" @click="updateBudget(item)">update</el-button>
+                                <el-button type="danger" icon="el-icon-delete" @click.prevent="removeBudget(item)">delete</el-button>
+                                <el-button type="success" icon="el-icon-check"  @click="updateBudget(item)">update</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <el-button @click="addDomain">add another category</el-button>
+                                <el-button icon="el-icon-circle-plus-outline" @click="addDomain">add another one</el-button>
                             </el-form-item>
                         </el-form>
                     </el-main>
@@ -204,22 +208,7 @@
                             accountType: '5',
                             label: 'current'
                         }],
-                        spendingTableData: [{
-                            date: '2019-05-02',
-                            note: 'lunch',
-                            category: "Utilities",
-                            payment: 33.01
-                        }, {
-                            date: '2019-05-02',
-                            note: 'lunch',
-                            category: "Utilities",
-                            payment: 44.01
-                        }, {
-                            date: '2019-05-02',
-                            note: 'lunch',
-                            category: "Utilities",
-                            payment: 66.01
-                        }]
+                        spendingTableData: []
                     }
                 },
                 methods: {
@@ -243,7 +232,13 @@
                             .then(function(response) {
                                 console.log(response.data)
                                 that.spendingTableData = response.data
-                                console.log(that.spendingTableData)
+                                for (let index = 0; index < that.spendingTableData.length; index++) {
+                                    console.log(index)
+                                    console.log(that.spendingTableData[index].date)
+
+                                    that.spendingTableData[index].date = that.spendingTableData[index].date.split('T')[0];
+                                    console.log(that.spendingTableData[index].date)
+                                }
                                 axios.get('http://localhost:8080/category')
                                     .then(function(response) {
                                         if (response.data.length != 0) {
@@ -293,6 +288,9 @@
                     month: ''
                 }
             },
+            mounted() {
+                this.draw()
+            },
             methods: {
                 pagepush(item) {
                     console.log(item);
@@ -311,39 +309,52 @@
                     })
                 },
                 monthchange(month) {
+                    this.typetabledata = []
+                    this.categories = []
                     var nowMonth = month.getMonth()
                     var nowYear = month.getFullYear()
                     var fromdate = new Date(nowYear, nowMonth, 1)
                     var todate = new Date(nowYear, nowMonth + 1, 0)
-
-                    console.log("console")
-                    console.log(format('yyyy-MM-dd', fromdate))
-                    console.log(format('yyyy-MM-dd', todate))
-
                     var that = this
                     axios.get('http://localhost:8080/spend?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
                         .then(function(response) {
-                            console.log(response.data)
                             that.tableData = response.data
-                            console.log(that.tableData)
-                            var item = []
+                                //date 格式化
                             for (let index = 0; index < that.tableData.length; index++) {
-                                item = that.tableData[index]
-                                var typeindex = that.categories.indexOf(that.tableData[index].type);
-                                console.log(typeindex)
-                                if (typeindex != -1) {
-                                    that.typetabledata[typeindex].bill.push(item)
-                                } else {
-                                    that.categories.push(that.tableData[index].type)
-                                    that.typetabledata.push({
-                                        "type": that.tableData[index].type,
-                                        "bill": [item],
-                                    })
-                                    console.log(that.categories)
-                                    console.log(that.typetabledata)
-                                }
+                                that.tableData[index].date = that.tableData[index].date.split("T")[0]
                             }
-
+                            var item = []
+                            var budgetData = []
+                            var typeInBudget = []
+                                // get monthly budget
+                            axios.get('http://localhost:8080/budget?from=' + format('yyyy-MM-dd', fromdate) + '&to=' + format('yyyy-MM-dd', todate))
+                                .then(function(response) {
+                                    budgetData = response.data
+                                    typeInBudget = response.data.map(t => t.type)
+                                        // spend数据按category分类存到typetabledata
+                                        //typetabledata = [{"type":"", "budget":"", "havespend":"", "bill":[{spendobject}]}]
+                                    for (let index = 0; index < that.tableData.length; index++) {
+                                        item = that.tableData[index]
+                                        var typeindex = that.categories.indexOf(that.tableData[index].type);
+                                        if (typeindex != -1) {
+                                            //if type already in typetabledata
+                                            that.typetabledata[typeindex].bill.push(item)
+                                            that.typetabledata[typeindex].havespend += item.payment
+                                        } else {
+                                            //if type not in typetable data
+                                            that.categories.push(that.tableData[index].type)
+                                            that.typetabledata.push({
+                                                "type": that.tableData[index].type,
+                                                "budget": budgetData[typeInBudget.indexOf(item.type)].budget,
+                                                "havespend": item.payment,
+                                                "bill": [item],
+                                            })
+                                        }
+                                    }
+                                })
+                                .catch(function(error) {
+                                    console.log(error)
+                                })
                         })
                         .catch(function(error) {
                             console.log(error)
@@ -351,7 +362,40 @@
                 },
                 handleChange(val) {
                     console.log(val)
-                    this.typetabledata = []
+                },
+                draw() {
+                    var myChart = echarts.init(document.getElementById("myChart"));
+                    myChart.setOption({
+                        // title: {
+                        //     text: '第一个 ECharts 实例'
+                        // },
+                        tooltip: {},
+                        legend: {
+                            data: [{
+                                name: 'Budget'
+                            }, {
+                                name: 'Spend'
+                            }]
+                        },
+                        xAxis: {
+                            type: "category",
+                            "axisLabel": {
+                                interval: 0
+                            },
+                            data: ["Utilities", "Travel", "Groceries", "Drinks", "Rent", "Cell Phone", "Car Payments", "Fun Money"]
+                        },
+                        yAxis: {},
+                        series: [{
+                            name: 'Budget',
+                            type: 'bar',
+                            data: [200, 300, 360, 400, 300, 220, 340, 400]
+                        }, {
+                            name: 'Spend',
+                            type: 'bar',
+                            data: [100, 200, 260, 300, 200, 120, 240, 300]
+                        }]
+                    })
+                    window.onresize = myChart.resize; //让图表跟着窗口大小变化
                 },
             }
         }
