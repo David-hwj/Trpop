@@ -1,9 +1,9 @@
-_id,type
-5f603985a07e2e311fc144c2,Travel
-5f6189d859545c5bcd2aaebc,Utilities
-5f6189e059545c5bcd2aaebd,Groceries
-5f6189e659545c5bcd2aaebe,Drinks
-5f6189eb59545c5bcd2aaebf,Rent
-5f6189f359545c5bcd2aaec0,Cell Phone
-5f618a0159545c5bcd2aaec1,Car Payments
-5f618a0e59545c5bcd2aaec2,Fun Money
+_id,type,_class
+5f6189d859545c5bcd2aaebc,Utilities,com.train.trpop.entities.Category
+5f6189e059545c5bcd2aaebd,Groceries,com.train.trpop.entities.Category
+5f6189f359545c5bcd2aaec0,Cell Phone,com.train.trpop.entities.Category
+5f618a0e59545c5bcd2aaec2,Fun Money,com.train.trpop.entities.Category
+5f6304171f8f400f6b77a228,Traffic,com.train.trpop.entities.Category
+5f6304991f8f400f6b77a229,Drinks,com.train.trpop.entities.Category
+5f6306df9add4b581813670f,Rent,com.train.trpop.entities.Category
+5f630ab09add4b5818136711,Travel,com.train.trpop.entities.Category

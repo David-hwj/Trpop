@@ -496,32 +496,53 @@
                         axios.delete("http://localhost:8080/budget?id=" + item._id)
                             .then(function(response) {
                                 console.log(response);
+                                requestbody = {
+                                    "Month": new Date(),
+                                    "type": item.type,
+                                    "budget": item.budget
+                                }
+                                axios.post("http://localhost:8080/budget", requestbody)
+                                    .then(function(response) {
+                                        var newbud = response.data
+                                        that.$notify({
+                                            title: 'success',
+                                            message: 'you have update this Budget successfully',
+                                            type: 'success'
+                                        });
+                                        if (indexBudget !== -1) {
+                                            that.budgetNew[indexBudget] = newbud
+                                        }
+                                    })
+                                    .catch(function(error) {
+                                        console.log(error);
+                                    })
 
                             })
                             .catch(function(error) {
                                 console.log(error);
                             })
+                    } else {
+                        requestbody = {
+                            "Month": new Date(),
+                            "type": item.type,
+                            "budget": item.budget
+                        }
+                        axios.post("http://localhost:8080/budget", requestbody)
+                            .then(function(response) {
+                                var newbud = response.data
+                                that.$notify({
+                                    title: 'success',
+                                    message: 'you have update this Budget successfully',
+                                    type: 'success'
+                                });
+                                if (indexBudget !== -1) {
+                                    that.budgetNew[indexBudget] = newbud
+                                }
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
                     }
-                    requestbody = {
-                        "Month": new Date(),
-                        "type": item.type,
-                        "budget": item.budget
-                    }
-                    axios.post("http://localhost:8080/budget", requestbody)
-                        .then(function(response) {
-                            var newbud = response.data
-                            that.$notify({
-                                title: 'success',
-                                message: 'you have update this Budget successfully',
-                                type: 'success'
-                            });
-                            if (indexBudget !== -1) {
-                                that.budgetNew[indexBudget] = newbud
-                            }
-                        })
-                        .catch(function(error) {
-                            console.log(error);
-                        })
                     console.log(this.budgetNew);
                     console.log(this.Predata);
 
@@ -529,22 +550,35 @@
                         axios.delete("http://localhost:8080/category?type=" + that.Predata[indexBudget])
                             .then(function(response) {
                                 console.log(response);
+                                requestbody = {
+                                    "type": item.type,
+                                }
+                                axios.post("http://localhost:8080/category", requestbody)
+                                    .then(function(response) {
+                                        console.log(response.data)
+                                    })
+                                    .catch(function(error) {
+                                        console.log(error);
+                                    })
+                                that.Predata[indexBudget] = item.type
                             })
                             .catch(function(error) {
                                 console.log(error);
                             })
+                    } else {
+                        requestbody = {
+                            "type": item.type,
+                        }
+                        axios.post("http://localhost:8080/category", requestbody)
+                            .then(function(response) {
+                                console.log(response.data)
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            })
+                        that.Predata[indexBudget] = item.type
                     }
-                    requestbody = {
-                        "type": item.type,
-                    }
-                    axios.post("http://localhost:8080/category", requestbody)
-                        .then(function(response) {
-                            console.log(response.data)
-                        })
-                        .catch(function(error) {
-                            console.log(error);
-                        })
-                    that.Predata[indexBudget] = item.type
+
 
                 },
                 removeBudget(item) {
@@ -571,6 +605,12 @@
                     var index = this.budgetNew.indexOf(item)
                     if (index !== -1) {
                         this.budgetNew.splice(index, 1)
+                        this.$notify({
+                            title: 'success',
+                            message: 'you have delete this Budget successfully',
+                            type: 'success'
+                        });
+
                     }
                 },
                 addDomain() {

@@ -87,7 +87,7 @@ public class SpendRestController {
             list.add(new Spend("",1500.0,sdf.parse("2020-09-11"),"wechatpay"));
             list.add(new Spend("",5.0,sdf.parse("2020-09-17"),"wechatpay"));
         }else{
-            list.add(new Spend("",0.0,sdf.parse("2020-09-01"),type));
+            list.add(new Spend("",0.0,sdf.parse("2020-09-02"),type));
         }
         return list;
     }
