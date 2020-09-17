@@ -1,0 +1,9 @@
+_id,type,_class
+5f63559d9a28876b80bbeed9,Utilities,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeeda,Groceries,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeedb,Cell Phone,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeedc,Fun Money,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeedd,Traffic,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeede,Drinks,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeedf,Rent,com.train.trpop.entities.Category
+5f63559d9a28876b80bbeee0,Travel,com.train.trpop.entities.Category

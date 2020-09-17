@@ -42,7 +42,7 @@ public class BudgetRestController {
     }
 
     @PostMapping("")
-    public String postBudget(@RequestBody String json) {
+    public Budget postBudget(@RequestBody String json) {
         JSONObject o =null;
         String type = null;
         double budgetAmount = 0;
@@ -53,17 +53,17 @@ public class BudgetRestController {
             budgetAmount = o.getDouble("budget");
             month = sdf.parse(o.getString("Month"));
         } catch (JSONException | ParseException e) {
-            return String.format("Insert failed");
+            return null;
         }
 
         List<Budget> list = budgetRepository.findAll();
         for(Budget b:list) {
             if(b.getType().equals(type) && b.getDate().getMonth()==(month.getMonth()))
-                return String.format("Budget already exist");
+                return null;
         }
         Budget budget = new Budget(type,budgetAmount,month);
         budgetService.postOneBudget(budget);
-        return String.format("Insert Succ :%S",budget.toString());
+        return budget;
     }
 
     @DeleteMapping("")

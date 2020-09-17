@@ -509,7 +509,7 @@
                                             message: 'you have update this Budget successfully',
                                             type: 'success'
                                         });
-                                        if (indexBudget !== -1) {
+                                        if (indexBudget != -1) {
                                             that.budgetNew[indexBudget] = newbud
                                         }
                                     })
@@ -535,7 +535,7 @@
                                     message: 'you have update this Budget successfully',
                                     type: 'success'
                                 });
-                                if (indexBudget !== -1) {
+                                if (indexBudget != -1) {
                                     that.budgetNew[indexBudget] = newbud
                                 }
                             })
@@ -543,8 +543,6 @@
                                 console.log(error);
                             })
                     }
-                    console.log(this.budgetNew);
-                    console.log(this.Predata);
 
                     if (item.type != that.Predata[indexBudget]) {
                         axios.delete("http://localhost:8080/category?type=" + that.Predata[indexBudget])
@@ -578,13 +576,19 @@
                             })
                         that.Predata[indexBudget] = item.type
                     }
-
-
+                    console.log("111111")
+                    console.log(this.budgetNew)
                 },
                 removeBudget(item) {
-                    console.log(item._id.length)
-                    if (item._id.length) {
-                        axios.delete("http://localhost:8080/budget?id=" + item._id)
+                    var that = this
+                    console.log("222222")
+                    console.log(this.Predata)
+                    console.log(item.type)
+                    var indexBudget = this.Predata.indexOf(item.type)
+                    console.log(indexBudget)
+                    var _id = that.budgetNew[indexBudget]._id
+                    if (_id.length) {
+                        axios.delete("http://localhost:8080/budget?id=" + _id)
                             .then(function(response) {
                                 console.log(response);
                             })
@@ -600,11 +604,9 @@
                             .catch(function(error) {
                                 console.log(error);
                             })
-
                     }
-                    var index = this.budgetNew.indexOf(item)
-                    if (index !== -1) {
-                        this.budgetNew.splice(index, 1)
+                    if (indexBudget != -1) {
+                        this.budgetNew.splice(indexBudget, 1)
                         this.$notify({
                             title: 'success',
                             message: 'you have delete this Budget successfully',

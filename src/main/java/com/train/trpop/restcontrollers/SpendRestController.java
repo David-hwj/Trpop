@@ -82,12 +82,12 @@ public class SpendRestController {
             list.add(new Spend("",100.0,sdf.parse("2020-09-13"),"alipay"));
             list.add(new Spend("",3.0,sdf.parse("2020-09-14"),"alipay"));
         }else if(type.equals("2")){
-            list.add(new Spend("",2.2,sdf.parse("2020-09-02"),"wechatpay"));
+            list.add(new Spend("",2.2,sdf.parse("2020-09-12"),"wechatpay"));
             list.add(new Spend("",300.0,sdf.parse("2020-09-03"),"wechatpay"));
             list.add(new Spend("",1500.0,sdf.parse("2020-09-11"),"wechatpay"));
             list.add(new Spend("",5.0,sdf.parse("2020-09-17"),"wechatpay"));
         }else{
-            list.add(new Spend("",0.0,sdf.parse("2020-09-02"),type));
+            list.add(new Spend("",5.0,sdf.parse("2020-09-09"),type));
         }
         return list;
     }
